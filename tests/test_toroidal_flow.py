@@ -24,3 +24,21 @@ def test_optimization_prefers_phi_aligned_geometry():
     assert result["injection_angle_deg"] > 20.0
     assert result["injection_angle_deg"] < 40.0
     assert result["stability_score"] < 1.0
+    assert result["stability_score"] > 0.0
+
+
+def test_stability_score_range():
+    # laminar
+    r1 = optimize_torus_geometry(reynolds_number=1000)["stability_score"]
+    # turbulent
+    r2 = optimize_torus_geometry(reynolds_number=10000)["stability_score"]
+    assert 0.0 < r1 <= 1.0
+    assert 0.0 < r2 <= 1.0
+    assert r1 > r2
+
+
+def test_optimize_raises_on_invalid_reynolds():
+    import pytest
+
+    with pytest.raises(ValueError):
+        optimize_torus_geometry(reynolds_number=-10)
